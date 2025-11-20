@@ -1,76 +1,49 @@
-#include <Password.h> // Biblioteca utilizada para controle de senha
-#include <Keypad.h> // Biblioteca para controle do teclado de matrizes
+#define BLYNK_TEMPLATE_ID "TMPL2EyA5WxxR"
+#define BLYNK_TEMPLATE_NAME "COMANDANDO LEDS"
+#define BLYNK_AUTH_TOKEN "SAdGUhynzfGCRK7HsoQ-a3iw75qHJDgd"
 
-const byte LINHAS = 4; // Linhas do teclado
-const byte COLUNAS = 4; // Colunas do teclado
+#include <WiFi.h>
+#include <BlynkSimpleEsp32.h>
 
-Password senha = Password( "9999"); // Senha utilizada para liberacao
-
-const int PINO_LED_VERMELHO = 11; // LED vermelho conectado ao pino 11
-const int PINO_LED_VERDE = 10; // LED verde conectado ao pino 10
-
-const char TECLAS_MATRIZ[LINHAS][COLUNAS] = { // Matriz de caracteres (mapeamento do teclado)
-  {'1', '2', '3', 'A'},
-  {'4', '5', '6', 'B'},
-  {'7', '8', '9', 'C'},
-  {'*', '0', '#', 'D'}
-};
-
-const byte PINOS_LINHAS[LINHAS] = {9, 8, 7, 6}; // Pinos de conexao com as linhas do teclado
-const byte PINOS_COLUNAS[COLUNAS] = {5, 4, 3, 2}; // Pinos de conexao com as colunas do teclado
-
-Keypad teclado_personalizado = Keypad(makeKeymap(TECLAS_MATRIZ), PINOS_LINHAS, PINOS_COLUNAS, LINHAS, COLUNAS); // Inicia teclado
+char ssid [] =  "TCC";
+char pass [] = "12345678";
 
 void setup() {
-  
-  Serial.begin(9600); // Inicializa serial monitor
-  
-  pinMode(PINO_LED_VERMELHO, OUTPUT); // Define pino 10 como saida
-  pinMode(PINO_LED_VERDE, OUTPUT); // Define pino 11 como saida
+  Serial.begin(115200);
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+  pinMode(13, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(14, OUTPUT);
+  pinMode(26, OUTPUT);
+  pinMode(27, OUTPUT);
+  pinMode(25, OUTPUT);
+}
 
-  digitalWrite(PINO_LED_VERDE, LOW); // LED Verde apagado
-  digitalWrite(PINO_LED_VERMELHO, LOW); // LED Vermelho apagado
-  
+BLYNK_WRITE(V0){
+  int pinValue = param.asInt();
+  digitalWrite(13, pinValue);
+}
+BLYNK_WRITE(V1){
+  int pinValue = param.asInt();
+  digitalWrite(12, pinValue);
+}
+BLYNK_WRITE(V2){
+  int pinValue = param.asInt();
+  digitalWrite(14, pinValue);
+}
+BLYNK_WRITE(V3){
+  int pinValue = param.asInt();
+  digitalWrite(26, pinValue);
+}
+BLYNK_WRITE(V4){
+  int pinValue = param.asInt();
+  digitalWrite(27, pinValue);
+}
+BLYNK_WRITE(V5){
+  int pinValue = param.asInt();
+  digitalWrite(25, pinValue);
 }
 
 void loop() {
-    
-  char leitura_teclas = teclado_personalizado.getKey(); // Atribui a variavel a leitura do teclado
-  
-  if(leitura_teclas){ // Se alguma tecla foi pressionada
-
-    if(leitura_teclas == '8'){ // Se a tecla 'C' foi pressionada
-      
-      if(senha.evaluate()){ // Verifica se a senha digitada esta correta
-        
-        Serial.println("Senha confirmada!"); // Exibe a mensagem que a senha esta correta
-        for(int i = 0; i < 5; i++){ // Pisca o LED 5 vezes rapidamente
-          digitalWrite(PINO_LED_VERDE, HIGH);
-          delay(50);
-          digitalWrite(PINO_LED_VERDE, LOW);
-          delay(50);
-          
-        }
-      } else { // Caso a senha esteja incorreta
-        
-        Serial.println("Senha incorreta!"); // Exibe a mensagem que a senha esta errada
-        for(int i = 0; i < 5; i++){ // Pisca o LED 5 vezes rapidamente
-          digitalWrite(PINO_LED_VERMELHO, HIGH);
-          delay(50);
-          digitalWrite(PINO_LED_VERMELHO, LOW);
-          delay(50);
-          
-        }
-      }
-      
-      senha.reset(); // Limpa a variavel senha
-      
-    } else { // Caso outra tecla tenha sido pressionada
-      
-      Serial.println(leitura_teclas); // Exibe a tecla pressionada
-      senha.append(leitura_teclas); // Salva o valor da tecla pressionada na variavel senha
-      
-    }
-  }
-
+  Blynk.run();
 }
